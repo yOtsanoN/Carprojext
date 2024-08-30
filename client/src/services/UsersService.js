@@ -1,6 +1,6 @@
 import Api from '@/services/Api'
 export default {
-    index(search) {
+    index() {
         return Api().get('users')
     },
     show(userId) {
