@@ -16,9 +16,12 @@ module.exports = {
     async create(req, res) {
         // res.send(JSON.stringify(req.body))
         try {
+            console.log('Blog create req.body:',req.body)
             const blog = await Blog.create(req.body)
+            console.log('Blog create blog:',blog)
             res.send(blog.toJSON())
         } catch (err) {
+            console.log('Blog create err:',err)
             res.status(500).send({
                 error: 'Create blog incorrect'
             })
