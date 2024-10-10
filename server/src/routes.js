@@ -2,7 +2,7 @@ const UserController = require('./controllers/UserController');
 const UserAuthenController = require('./controllers/UserAuthenController');
 const isAuthenController = require('./authen/isAuthenController');
 const BlogController = require('./controllers/BlogController');
-
+const CarController = require('./controllers/CarController');
 let multer = require("multer")
 
 // upload section
@@ -30,6 +30,17 @@ module.exports = (app) => {
     app.delete('/blog/:blogId', BlogController.remove);
     app.get('/blog/:blogId', BlogController.show);
     app.get('/blogs', BlogController.index);
+    // Create car
+    app.post('/car',CarController.create);
+    // Edit car
+    app.put('/car/:carId',CarController.put);
+    // Delete car
+    app.delete('/car/:carId',CarController.remove);
+    // Get car by ID
+    app.get('/car/:carId',CarController.show);
+    // Get all cars
+    app.get('/cars',CarController.index);
+
 
     // upload
     app.post("/upload", function (req, res) {
