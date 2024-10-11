@@ -2,7 +2,7 @@
   <div>
     <div class="nv-navbar">
       <ul class="nav">
-        <li><router-link :to="{ name: 'blogs' }">Blogs</router-link></li>
+        <!--<li><router-link :to="{ name: 'blogs' }">Blogs</router-link></li>-->
         <li><router-link :to="{ name: 'users' }">Users</router-link></li>
         <li><router-link :to="{ name: 'cars' }">Cars</router-link></li>
         <!-- Show Login if user is not logged in, otherwise show Logout -->

@@ -2,33 +2,17 @@
   <div>
     <h1>Edit Car</h1>
     <form v-on:submit.prevent="editCar">
-      <p>
-        Car Name:
-        <input type="text" v-model="car.car_name" />
-      </p>
-      <p>
-        Year:
-        <input type="number" v-model="car.year" />
-      </p>
-      <p>
-        Price:
-        <input type="number" step="0.01" v-model="car.price" />
-      </p>
-      <p>
-        Manufacturer:
-        <input type="text" v-model="car.manufacturer" />
-      </p>
-      <p>
-        Engine Type:
-        <input type="text" v-model="car.engine_type" />
-      </p>
-
+      <p>Name: <input type="text" v-model="car.car_name" /></p>
+      <p>Year: <input type="number" v-model="car.year" /></p>
+      <p>Price: <input type="number" v-model="car.price" /></p>
+      <p>Manufacturer: <input type="text" v-model="car.manufacturer" /></p>
+      <p>Engine Type: <input type="text" v-model="car.engine_type" /></p>
+      
       <transition name="fade">
         <div class="thumbnail-pic" v-if="car.pic != 'null'">
           <img :src="BASE_URL + car.pic" alt="thumbnail" />
         </div>
       </transition>
-
       <form enctype="multipart/form-data" novalidate>
         <div class="dropbox">
           <input
@@ -36,7 +20,10 @@
             multiple
             :name="uploadFieldName"
             :disabled="isSaving"
-            @change="filesChange($event.target.name, $event.target.files)"
+            @change="
+              filesChange($event.target.name, $event.target.files);
+              fileCount = $event.target.files.length;
+            "
             accept="image/*"
             class="input-file"
           />
@@ -45,23 +32,19 @@
           <p v-if="isSuccess">Upload Successful.</p>
         </div>
       </form>
-
-      <div>
-        <transition-group tag="ul" class="pictures">
-          <li v-for="picture in pictures" v-bind:key="picture.id">
-            <img
-              style="margin-bottom: 5px"
-              :src="BASE_URL + picture.name"
-              alt="picture image"
-            />
-            <br />
-            <button v-on:click.prevent="useThumbnail(picture.name)">Thumbnail</button>
-            <button v-on:click.prevent="delFile(picture)">Delete</button>
-          </li>
-        </transition-group>
-        <div class="clearfix"></div>
-      </div>
-
+      
+      <transition-group tag="ul" class="pictures">
+        <li v-for="picture in pictures" v-bind:key="picture.id">
+          <img style="margin-bottom: 5px" :src="BASE_URL + picture.name" alt="picture image" />
+          <br />
+          <button v-on:click.prevent="useThumbnail(picture.name)">Thumbnail</button>
+          <button v-on:click.prevent="delFile(picture)">Delete</button>
+        </li>
+      </transition-group>
+      
+      <div class="clearfix"></div>
+      
+     
       <p>
         <button type="submit">Update Car</button>
         <button v-on:click="navigateTo('/cars')">Back</button>
@@ -71,8 +54,9 @@
 </template>
 
 <script>
-import CarsService from "@/services/CarService";  // Import Car service
-import UploadService from "@/services/UploadService";  // Upload service for images
+import CarsService from "@/services/CarService"; // Adjust import for CarsService
+import VueCkeditor from "vue-ckeditor2";
+import UploadService from "../../services/UploadService";
 
 const STATUS_INITIAL = 0,
   STATUS_SAVING = 1,
@@ -80,82 +64,126 @@ const STATUS_INITIAL = 0,
   STATUS_FAILED = 3;
 
 export default {
+  components: { VueCkeditor },
   data() {
     return {
       BASE_URL: "http://localhost:8081/assets/uploads/",
       error: null,
+      uploadError: null,
       currentStatus: null,
-      uploadFieldName: "carPhoto",
+      uploadFieldName: "carImage",
       uploadedFileNames: [],
       pictures: [],
       pictureIndex: 0,
       car: {
         car_name: "",
-        year: null,
-        price: null,
+        year: "",
+        price: "",
         manufacturer: "",
         engine_type: "",
         pic: "null",
       },
+      config: {
+        toolbar: [
+          ["Bold", "Italic", "Underline", "Strike", "Subscript", "Superscript"],
+        ],
+        height: 300,
+      },
     };
   },
   methods: {
-    async delFile(picture) {
+    async delFile(material) {
       let result = confirm("Want to delete?");
       if (result) {
-        let dataJSON = { filename: picture.name };
+        let dataJSON = {
+          filename: material.name,
+        };
+
         await UploadService.delete(dataJSON);
-        this.pictures = this.pictures.filter((pic) => pic.id !== picture.id);
+        for (var i = 0; i < this.pictures.length; i++) {
+          if (this.pictures[i].id === material.id) {
+            this.pictures.splice(i, 1);
+            this.materialIndex--;
+            break;
+          }
+        }
       }
     },
     async editCar() {
-      this.car.pictures = JSON.stringify(this.pictures);  // Convert pictures to JSON
-      console.log("Editing car: ", this.car);
       try {
-        await CarsService.put(this.car);  // Call the Car service to update data
-        this.$router.push({ name: "cars" });  // Navigate after success
+        await CarsService.put(this.car); // Update to use CarsService
+        this.$router.push({
+          name: "cars",
+        });
       } catch (err) {
-        console.error("Error updating car:", err);
+        console.log(err);
       }
     },
-    filesChange(fieldName, fileList) {
-      const formData = new FormData();
-      if (!fileList.length) return;
-      Array.from(fileList).forEach((file) => {
-        formData.append(fieldName, file, file.name);
-        this.uploadedFileNames.push(file.name);
-      });
-      this.save(formData);
+    onBlur(editor) {
+      console.log(editor);
+    },
+    onFocus(editor) {
+      console.log(editor);
+    },
+    navigateTo(route) {
+      console.log(route);
+      this.$router.push(route);
+    },
+    wait(ms) {
+      return (x) => {
+        return new Promise((resolve) => setTimeout(() => resolve(x), ms));
+      };
+    },
+    reset() {
+      this.currentStatus = STATUS_INITIAL;
+      this.uploadError = null;
+      this.uploadedFileNames = [];
     },
     async save(formData) {
       try {
         this.currentStatus = STATUS_SAVING;
         await UploadService.upload(formData);
         this.currentStatus = STATUS_SUCCESS;
-        this.uploadedFileNames.forEach((filename) => {
-          if (!this.pictures.some((pic) => pic.name === filename)) {
+
+        let pictureJSON = [];
+        this.uploadedFileNames.forEach((uploadFilename) => {
+          let found = false;
+          for (let i = 0; i < this.pictures.length; i++) {
+            if (this.pictures[i].name == uploadFilename) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
             this.pictureIndex++;
-            this.pictures.push({ id: this.pictureIndex, name: filename });
+            let pictureJSON = {
+              id: this.pictureIndex,
+              name: uploadFilename,
+            };
+            this.pictures.push(pictureJSON);
           }
         });
         this.clearUploadResult();
       } catch (error) {
-        console.error(error);
+        console.log(error);
         this.currentStatus = STATUS_FAILED;
       }
     },
-    clearUploadResult() {
+    filesChange(fieldName, fileList) {
+      const formData = new FormData();
+      if (!fileList.length) return;
+      Array.from(Array(fileList.length).keys()).map((x) => {
+        formData.append(fieldName, fileList[x], fileList[x].name);
+        this.uploadedFileNames.push(fileList[x].name);
+      });
+      this.save(formData);
+    },
+    clearUploadResult: function () {
       setTimeout(() => this.reset(), 5000);
     },
-    reset() {
-      this.currentStatus = STATUS_INITIAL;
-      this.uploadedFileNames = [];
-    },
     useThumbnail(filename) {
-      this.car.pic = filename;  // Set the chosen image as the thumbnail
-    },
-    navigateTo(route) {
-      this.$router.push(route);
+      console.log(filename);
+      this.car.thumbnail = filename;
     },
   },
   computed: {
@@ -168,41 +196,46 @@ export default {
     isSuccess() {
       return this.currentStatus === STATUS_SUCCESS;
     },
-  },
-  created() {
-    this.currentStatus = STATUS_INITIAL;
-    // Load car data to edit here
-    this.loadCarData();
-  },
-  methods: {
-    async loadCarData() {
-      const carId = this.$route.params.carId; // Get the car ID from the route params
-      try {
-        const response = await CarsService.show(carId); // Fetch car data
-        this.car = response.data; // Set car data
-        this.pictures = JSON.parse(this.car.pictures); // Load pictures
-        this.pictureIndex = this.pictures.length; // Set picture index
-      } catch (error) {
-        console.error("Error loading car data:", error);
-      }
+    isFailed() {
+      return this.currentStatus === STATUS_FAILED;
     },
+  },
+  async created() {
+    this.currentStatus = STATUS_INITIAL;
+    try {
+      let carId = this.$route.params.carId; // Adjusted to fetch carId
+      this.car = (await CarsService.show(carId)).data; // Update to use CarsService
+      this.pictures = JSON.parse(this.car.pictures);
+      this.pictureIndex = this.pictures.length;
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  async mounted() {
+    try {
+      let carId = this.$route.params.carId; // Adjusted to fetch carId
+      this.car = (await CarsService.show(carId)).data; // Update to use CarsService
+      this.pictures = JSON.parse(this.car.pictures);
+    } catch (error) {
+      console.log(error);
+    }
   },
 };
 </script>
 
 <style scoped>
 .dropbox {
-  outline: 2px dashed grey; /* the dash box */
+  outline: 2px dashed grey;
   outline-offset: -10px;
   background: lemonchiffon;
   color: dimgray;
   padding: 10px 10px;
-  min-height: 200px; /* minimum height */
+  min-height: 200px;
   position: relative;
   cursor: pointer;
 }
 .input-file {
-  opacity: 0; /* invisible but it's there! */
+  opacity: 0;
   width: 100%;
   height: 200px;
   position: absolute;
@@ -210,8 +243,7 @@ export default {
 }
 
 .dropbox:hover {
-  background: khaki; /* when mouse over to the drop zone, change color 
-*/
+  background: khaki;
 }
 
 .dropbox p {

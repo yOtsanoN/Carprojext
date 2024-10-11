@@ -70,8 +70,8 @@
 </template>
 
 <script>
-import CarsService from "@/services/CarService";  // Import Car service
-import UploadService from "@/services/UploadService";  // Upload service for images
+import CarsService from "@/services/CarService";  
+import UploadService from "@/services/UploadService";  
 
 const STATUS_INITIAL = 0,
   STATUS_SAVING = 1,
@@ -108,11 +108,11 @@ export default {
       }
     },
     async createCar() {
-      this.car.pictures = JSON.stringify(this.pictures);  // Convert pictures to JSON
+      this.car.pictures = JSON.stringify(this.pictures);  
       console.log("Creating car: ", this.car);
       try {
-        await CarsService.post(this.car);  // Call the Car service to post data
-        this.$router.push({ name: "cars" });  // Navigate after success
+        await CarsService.post(this.car);  
+        this.$router.push({ name: "cars" });  
       } catch (err) {
         console.error("Error creating car:", err);
       }
@@ -151,7 +151,7 @@ export default {
       this.uploadedFileNames = [];
     },
     useThumbnail(filename) {
-      this.car.pic = filename;  // Set the chosen image as the thumbnail
+      this.car.pic = filename;  
     },
   },
   computed: {
@@ -172,17 +172,17 @@ export default {
 </script>
 <style scoped>
 .dropbox {
-  outline: 2px dashed grey; /* the dash box */
+  outline: 2px dashed grey; 
   outline-offset: -10px;
   background: lemonchiffon;
   color: dimgray;
   padding: 10px 10px;
-  min-height: 200px; /* minimum height */
+  min-height: 200px; 
   position: relative;
   cursor: pointer;
 }
 .input-file {
-  opacity: 0; /* invisible but it's there! */
+  opacity: 0; 
   width: 100%;
   height: 200px;
   position: absolute;
@@ -190,8 +190,7 @@ export default {
 }
 
 .dropbox:hover {
-  background: khaki; /* when mouse over to the drop zone, change color 
-*/
+  background: khaki; 
 }
 
 .dropbox p {
