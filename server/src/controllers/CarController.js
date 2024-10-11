@@ -1,4 +1,5 @@
 const { Car } = require('../models');
+
 module.exports = {
     // Get all cars
     async index(req, res) {
@@ -12,27 +13,35 @@ module.exports = {
         }
     },
     
-    // Create a car
+    // Create a new car
     async create(req, res) {
         try {
+            console.log('Car create req.body:', req.body);
             const car = await Car.create(req.body);
+            console.log('Car create car:', car);
             res.send(car.toJSON());
         } catch (err) {
+            console.log('Car create err:', err);
             res.status(500).send({
                 error: 'Create car incorrect'
             });
         }
     },
     
-    // Update car
+    // Update car details
     async put(req, res) {
         try {
-            await Car.update(req.body, {
+            const [updated] = await Car.update(req.body, {
                 where: {
                     id: req.params.carId
                 }
             });
-            res.send(req.body);
+            if (!updated) {
+                return res.status(404).send({
+                    error: 'Car not found'
+                });
+            }
+            res.send(req.body); // Optionally return the updated car data
         } catch (err) {
             res.status(500).send({
                 error: 'Update car incorrect'
@@ -54,7 +63,7 @@ module.exports = {
                 });
             }
             await car.destroy();
-            res.send(car);
+            res.send(car); // Optionally return the deleted car data
         } catch (err) {
             res.status(500).send({
                 error: 'The car information was incorrect'

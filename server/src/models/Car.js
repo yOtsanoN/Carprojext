@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
         year: DataTypes.INTEGER,
         price: DataTypes.DECIMAL,
         manufacturer: DataTypes.STRING,
-        engine_type: DataTypes.STRING
-    });
+        engine_type: DataTypes.STRING,
+        pic: DataTypes.TEXT,  
+        });
 };

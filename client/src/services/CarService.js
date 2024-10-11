@@ -11,7 +11,7 @@ export default {
         return Api().post('car', car); // Create a new car
     },
     put(car) {
-        return Api().put('car/' + car.id, car); // Update a car
+        return Api().put(`car/${car.id}`, car); 
     },
     delete(car) {
         return Api().delete('car/' + car.id); // Delete a car
