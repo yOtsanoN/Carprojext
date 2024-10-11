@@ -11,7 +11,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-app.use('/assets', express.static(path.join(__dirname, '../public'))); // Adjusted to point to server/public
+app.use('/assets', express.static('public'));
 
 // import routes
 

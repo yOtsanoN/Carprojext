@@ -16,6 +16,12 @@ import BlogEdit from '@/components/Blogs/EditBlog'
 
 import Upload from '@/components/Util/Upload'
 
+// Import car components
+import CarIndex from '@/components/Car/index'
+import CarCreate from '@/components/Car/CreateCar'
+import CarShow from '@/components/Car/ShowCar'
+import CarEdit from '@/components/Car/EditCar'
+
 Vue.use(Router)
 
 export default new Router({
@@ -75,6 +81,28 @@ export default new Router({
       path: '/upload',
       name: 'upload',
       component: Upload
+    },
+
+    // Car routes
+    {
+      path: '/cars',
+      name: 'cars',
+      component: CarIndex
+    },
+    {
+      path: '/car/create',
+      name: 'car-create',
+      component: CarCreate
+    },
+    {
+      path: '/car/edit/:carId',
+      name: 'car-edit',
+      component: CarEdit
+    },
+    {
+      path: '/car/:carId',
+      name: 'car',
+      component: CarShow
     },
   ]
 })
