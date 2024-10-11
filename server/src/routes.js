@@ -39,7 +39,7 @@ module.exports = (app) => {
     // Get car by ID
     app.get('/car/:carId',CarController.show);
     // Get all cars
-    app.get('/cars',CarController.index);
+    app.get('/cars',isAuthenController,CarController.index);
 
 
     // upload
